@@ -45,21 +45,23 @@ pipeline {
                     def imageName = (env.BRANCH_NAME == 'main') ? 'nodemain:v1.0' : 'nodedev:v1.0'
                     def dockerRepo = "tuUsuarioDockerHub/${imageName}"
 
-                    echo "Tagging image ${imageName} as ${dockerRepo}"
-                    sh "docker tag ${imageName} ${dockerRepo}"
+                    sh """
+                        echo "Tagging image ${imageName} as ${dockerRepo}"
+                        docker tag ${imageName} ${dockerRepo}
+                    """
 
                     withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh '''
+                        sh """
                             echo "Logging in to DockerHub"
-                            docker login -u $DOCKER_USER -p $DOCKER_PASS
+                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
                             echo "Pushing image to DockerHub: ${dockerRepo}"
                             docker push ${dockerRepo}
-                        '''
+                        """
                     }
                 }
             }
         }
-
+        
         stage('Deploy') {
             steps {
                 script {
