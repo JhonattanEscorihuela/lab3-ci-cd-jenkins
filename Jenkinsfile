@@ -40,22 +40,25 @@ pipeline {
         }
 
         stage('Push Docker Image') {
-    steps {
-        script {
-            def imageName = (env.BRANCH_NAME == 'main') ? 'nodemain:v1.0' : 'nodedev:v1.0'
-            def dockerRepo = "tuUsuarioDockerHub/${imageName}"
+            steps {
+                script {
+                    def imageName = (env.BRANCH_NAME == 'main') ? 'nodemain:v1.0' : 'nodedev:v1.0'
+                    def dockerRepo = "tuUsuarioDockerHub/${imageName}"
 
-            sh """
-                echo "Tagging image ${imageName} as ${dockerRepo}"
-                docker tag ${imageName} ${dockerRepo}
-                echo "Pushing image to DockerHub: ${dockerRepo}"
-                docker login -u $DOCKER_USER -p $DOCKER_PASS
-                docker push ${dockerRepo}
-            """
+                    echo "Tagging image ${imageName} as ${dockerRepo}"
+                    sh "docker tag ${imageName} ${dockerRepo}"
+
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh '''
+                            echo "Logging in to DockerHub"
+                            docker login -u $DOCKER_USER -p $DOCKER_PASS
+                            echo "Pushing image to DockerHub: ${dockerRepo}"
+                            docker push ${dockerRepo}
+                        '''
+                    }
+                }
+            }
         }
-    }
-}
-
 
         stage('Deploy') {
             steps {
