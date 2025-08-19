@@ -43,7 +43,7 @@ pipeline {
             steps {
                 script {
                     def imageName = (env.BRANCH_NAME == 'main') ? 'nodemain:v1.0' : 'nodedev:v1.0'
-                    def dockerUser = "jhonattan1410"
+                    def dockerUser = "jescorihuela"
                     def dockerRepo = "${dockerUser}/${imageName}"
 
                     sh """
@@ -69,7 +69,7 @@ pipeline {
                     def port = (env.BRANCH_NAME == 'main') ? '3000' : '3001'
                     def containerName = (env.BRANCH_NAME == 'main') ? 'node_main' : 'node_dev'
                     def imageName = (env.BRANCH_NAME == 'main') ? 'nodemain:v1.0' : 'nodedev:v1.0'
-                    def dockerUser = "jhonattan1410"
+                    def dockerUser = "jescorihuela"
                     def dockerRepo = "${dockerUser}/${imageName}"
 
                     sh """
