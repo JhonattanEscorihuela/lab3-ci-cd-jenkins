@@ -43,7 +43,8 @@ pipeline {
             steps {
                 script {
                     def imageName = (env.BRANCH_NAME == 'main') ? 'nodemain:v1.0' : 'nodedev:v1.0'
-                    def dockerRepo = "tuUsuarioDockerHub/${imageName}"
+                    def dockerUser = "jhonattan1410"
+                    def dockerRepo = "${dockerUser}/${imageName}"
 
                     sh """
                         echo "Tagging image ${imageName} as ${dockerRepo}"
@@ -61,20 +62,25 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Deploy') {
             steps {
                 script {
                     def port = (env.BRANCH_NAME == 'main') ? '3000' : '3001'
                     def containerName = (env.BRANCH_NAME == 'main') ? 'node_main' : 'node_dev'
                     def imageName = (env.BRANCH_NAME == 'main') ? 'nodemain:v1.0' : 'nodedev:v1.0'
+                    def dockerUser = "jhonattan1410"
+                    def dockerRepo = "${dockerUser}/${imageName}"
 
                     sh """
                         echo "Stopping and removing container: ${containerName} (if exists)"
                         docker rm -f ${containerName} || true
 
+                        echo "Pulling latest image from DockerHub"
+                        docker pull ${dockerRepo}
+
                         echo "Running container ${containerName} on port ${port}"
-                        docker run -d --name ${containerName} -p ${port}:3000 ${imageName}
+                        docker run -d --name ${containerName} -p ${port}:3000 ${dockerRepo}
                     """
                 }
             }
